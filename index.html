@@ -74,26 +74,10 @@
   </div>
 </div>
 
-<!-- iOS Add to Home Screen Prompt -->
-<div id="hsp" role="dialog" aria-label="Add to Home Screen">
-  <div class="hsp-arrow" aria-hidden="true">↑</div>
-  <div class="hsp-title">Get the full FitPulse experience</div>
-  <div class="hsp-sub">Add to your Home Screen to unlock offline workouts, streak tracking &amp; more — totally free.</div>
-  <div class="hsp-steps"><span>1.</span> Tap the Share button below &nbsp;<span>2.</span> "Add to Home Screen"</div>
-  <button class="hsp-dismiss" onclick="dismissHSP()">Maybe later</button>
-</div>
-
-<!-- Android/Chrome install banner -->
-<div id="install-banner" role="banner">
-  <div class="ib-text">📲 Install FitPulse — unlock all features</div>
-  <button class="ib-btn" onclick="installPWA()">Install Free</button>
-</div>
-
 <!-- TOP BAR -->
 <header class="topbar">
   <div class="topbar-inner">
     <div class="app-name">Fit<span>Pulse</span></div>
-    <div class="pwa-badge" id="pwa-badge">✦ Installed</div>
   </div>
   <div class="greeting" id="greeting">Good morning — let's crush today 💪</div>
 </header>
@@ -146,129 +130,6 @@
     <button class="quick-btn" onclick="switchTab('habits')">✦<span>Habits</span></button>
   </div>
 
-  <div class="premium-section-wrap">
-    <div class="premium-section">
-      <div class="premium-label">✦ PRO Feature</div>
-      <div class="premium-title">Body Composition Tracker</div>
-      <div class="premium-desc">Track weight, body fat %, and muscle mass with trend analysis and weekly reports.</div>
-    </div>
-    <div class="locked-overlay" id="lock-home">
-      <div class="lock-icon">🔒</div>
-      <div class="lock-text">Add to Home Screen to unlock</div>
-      <button class="lock-cta" onclick="showHSP()">How to add →</button>
-    </div>
-  </div>
-
-</section>
-
-<!-- ══════════ WORKOUT ══════════ -->
-<section class="section" id="sec-workout">
-
-  <div class="cal-strip" id="cal-strip"></div>
-
-  <div class="sec-title">Today's Plan <span class="sec-title-link">Edit</span></div>
-  <ul class="workout-list" id="workout-list">
-    <li class="workout-item" data-exercise="bench-press">
-      <div class="workout-icon wi-green">🏋️</div>
-      <div class="workout-info">
-        <div class="workout-name">Bench Press</div>
-        <div class="workout-meta">4 sets · 8–10 reps · 135 lbs</div>
-      </div>
-      <button class="workout-check" onclick="toggleCheck(this)" aria-label="Mark complete"></button>
-    </li>
-    <li class="workout-item" data-exercise="pullups">
-      <div class="workout-icon wi-purple">💪</div>
-      <div class="workout-info">
-        <div class="workout-name">Pull-ups</div>
-        <div class="workout-meta">3 sets · Max reps</div>
-      </div>
-      <button class="workout-check" onclick="toggleCheck(this)" aria-label="Mark complete"></button>
-    </li>
-    <li class="workout-item" data-exercise="squats">
-      <div class="workout-icon wi-red">🦵</div>
-      <div class="workout-info">
-        <div class="workout-name">Squats</div>
-        <div class="workout-meta">4 sets · 10 reps · 185 lbs</div>
-      </div>
-      <button class="workout-check" onclick="toggleCheck(this)" aria-label="Mark complete"></button>
-    </li>
-    <li class="workout-item" data-exercise="core">
-      <div class="workout-icon wi-green">🔥</div>
-      <div class="workout-info">
-        <div class="workout-name">Core Circuit</div>
-        <div class="workout-meta">2 rounds · 8 exercises</div>
-      </div>
-      <button class="workout-check" onclick="toggleCheck(this)" aria-label="Mark complete"></button>
-    </li>
-    <li class="workout-item" data-exercise="ohp">
-      <div class="workout-icon wi-purple">🏆</div>
-      <div class="workout-info">
-        <div class="workout-name">Overhead Press</div>
-        <div class="workout-meta">3 sets · 8 reps · 95 lbs</div>
-      </div>
-      <button class="workout-check" onclick="toggleCheck(this)" aria-label="Mark complete"></button>
-    </li>
-  </ul>
-
-  <div class="progress-bar-wrap">
-    <div class="progress-bar-label">
-      <span>Today's Progress</span>
-      <span id="workout-progress-text">0 / 5 done</span>
-    </div>
-    <div class="progress-bar-track">
-      <div class="progress-bar-fill" id="workout-progress-fill" style="width:0%"></div>
-    </div>
-  </div>
-
-  <div class="premium-section-wrap">
-    <div class="premium-section">
-      <div class="premium-label">✦ PRO Feature</div>
-      <div class="premium-title">Custom Program Builder</div>
-      <div class="premium-desc">Build fully custom weekly programs based on your goals and schedule.</div>
-    </div>
-    <div class="locked-overlay" id="lock-workout">
-      <div class="lock-icon">🔒</div>
-      <div class="lock-text">Add to Home Screen to unlock</div>
-      <button class="lock-cta" onclick="showHSP()">How to add →</button>
-    </div>
-  </div>
-
-</section>
-
-<!-- ══════════ NUTRITION ══════════ -->
-<section class="section" id="sec-nutrition">
-
-  <div class="macro-ring-wrap">
-    <svg width="160" height="160" viewBox="0 0 160 160" id="calorie-ring-svg" role="img" aria-label="Calories eaten today">
-      <circle cx="80" cy="80" r="65" fill="none" stroke="#1c1c2a" stroke-width="14"/>
-      <circle cx="80" cy="80" r="65" fill="none" stroke="#00e5a0" stroke-width="14"
-        id="calorie-ring-arc"
-        stroke-dasharray="408" stroke-dashoffset="408"
-        stroke-linecap="round" transform="rotate(-90 80 80)"/>
-      <text x="80" y="74" text-anchor="middle" fill="#f0f0f8" font-size="24" font-weight="700" font-family="Syne,sans-serif" id="ring-cal-val">0</text>
-      <text x="80" y="92" text-anchor="middle" fill="#9898b8" font-size="11" font-family="DM Sans,sans-serif">kcal eaten</text>
-      <text x="80" y="108" text-anchor="middle" fill="#5a5a7a" font-size="10" font-family="DM Sans,sans-serif" id="ring-cal-remaining">— remaining</text>
-    </svg>
-  </div>
-
-  <div class="macro-row">
-    <div class="macro-pill">
-      <div class="macro-pill-label">Protein</div>
-      <div class="macro-pill-val" style="color:var(--accent)" id="macro-protein">0g</div>
-      <div class="macro-pill-sub">goal 150g</div>
-    </div>
-    <div class="macro-pill">
-      <div class="macro-pill-label">Carbs</div>
-      <div class="macro-pill-val" style="color:var(--accent2)" id="macro-carbs">0g</div>
-      <div class="macro-pill-sub">goal 220g</div>
-    </div>
-    <div class="macro-pill">
-      <div class="macro-pill-label">Fat</div>
-      <div class="macro-pill-val" style="color:var(--accent4)" id="macro-fat">0g</div>
-      <div class="macro-pill-sub">goal 65g</div>
-    </div>
-  </div>
-
   <div class="sec-title">Today's Log
     <span class="sec-title-link" onclick="openMealModal()">+ Add</span>
   </div>
@@ -277,110 +138,6 @@
   </ul>
   <div id="food-log-empty" class="food-log-empty">No meals logged yet. Tap + Add to start.</div>
   <button class="add-food-btn" onclick="openMealModal()">+ Log a meal</button>
-
-  <div class="premium-section-wrap" style="margin-top:16px">
-    <div class="premium-section">
-      <div class="premium-label">✦ PRO Feature</div>
-      <div class="premium-title">Smart Meal Planner</div>
-      <div class="premium-desc">Personalized weekly meal plans with grocery lists and macro optimization.</div>
-    </div>
-    <div class="locked-overlay" id="lock-nutrition">
-      <div class="lock-icon">🔒</div>
-      <div class="lock-text">Add to Home Screen to unlock</div>
-      <button class="lock-cta" onclick="showHSP()">How to add →</button>
-    </div>
-  </div>
-
-</section>
-
-<!-- ══════════ HABITS ══════════ -->
-<section class="section" id="sec-habits">
-
-  <div class="sec-title">Your Habits <span class="sec-title-link">+ New</span></div>
-
-  <div class="habit-grid" id="habit-grid">
-    <div class="habit-card" data-habit="water">
-      <button class="habit-toggle" onclick="toggleHabit(this)" aria-pressed="false"></button>
-      <div class="habit-name">💧 Drink 3L Water</div>
-      <div class="habit-streak" id="streak-water" style="color:var(--accent)">0</div>
-      <div class="habit-streak-label">day streak</div>
-      <div class="habit-dots" id="hd1"></div>
-    </div>
-    <div class="habit-card" data-habit="sleep">
-      <button class="habit-toggle" onclick="toggleHabit(this)" aria-pressed="false"></button>
-      <div class="habit-name">😴 Sleep 8hrs</div>
-      <div class="habit-streak" id="streak-sleep" style="color:var(--accent2)">0</div>
-      <div class="habit-streak-label">day streak</div>
-      <div class="habit-dots" id="hd2"></div>
-    </div>
-    <div class="habit-card" data-habit="meditate">
-      <button class="habit-toggle" onclick="toggleHabit(this)" aria-pressed="false"></button>
-      <div class="habit-name">🧘 Meditate</div>
-      <div class="habit-streak" id="streak-meditate" style="color:var(--accent4)">0</div>
-      <div class="habit-streak-label">day streak</div>
-      <div class="habit-dots" id="hd3"></div>
-    </div>
-    <div class="habit-card" data-habit="noscreens">
-      <button class="habit-toggle" onclick="toggleHabit(this)" aria-pressed="false"></button>
-      <div class="habit-name">📵 No Screens 1hr</div>
-      <div class="habit-streak" id="streak-noscreens" style="color:var(--accent3)">0</div>
-      <div class="habit-streak-label">day streak</div>
-      <div class="habit-dots" id="hd4"></div>
-    </div>
-    <div class="habit-card" data-habit="read">
-      <button class="habit-toggle" onclick="toggleHabit(this)" aria-pressed="false"></button>
-      <div class="habit-name">📖 Read 20min</div>
-      <div class="habit-streak" id="streak-read" style="color:var(--accent2)">0</div>
-      <div class="habit-streak-label">day streak</div>
-      <div class="habit-dots" id="hd5"></div>
-    </div>
-    <div class="habit-card" data-habit="veggies">
-      <button class="habit-toggle" onclick="toggleHabit(this)" aria-pressed="false"></button>
-      <div class="habit-name">🥦 Eat Veggies</div>
-      <div class="habit-streak" id="streak-veggies" style="color:var(--accent)">0</div>
-      <div class="habit-streak-label">day streak</div>
-      <div class="habit-dots" id="hd6"></div>
-    </div>
-  </div>
-
-  <div class="premium-section-wrap">
-    <div class="premium-section">
-      <div class="premium-label">✦ PRO Feature</div>
-      <div class="premium-title">Habit Insights &amp; Correlation</div>
-      <div class="premium-desc">See how your habits affect performance, mood, and recovery with weekly insights.</div>
-    </div>
-    <div class="locked-overlay" id="lock-habits">
-      <div class="lock-icon">🔒</div>
-      <div class="lock-text">Add to Home Screen to unlock</div>
-      <button class="lock-cta" onclick="showHSP()">How to add →</button>
-    </div>
-  </div>
-
-</section>
-
-<!-- ══════════ RUNNING ══════════ -->
-<section class="section" id="sec-running">
-
-  <div class="run-hero">
-    <div class="run-map-bg" aria-hidden="true"></div>
-    <div class="run-dist" id="run-dist">0.00 <span class="run-dist-unit">mi</span></div>
-    <div class="run-sub" id="run-sub">Ready to go!</div>
-  </div>
-
-  <div class="run-stats-row">
-    <div class="run-stat">
-      <div class="run-stat-val" id="run-pace" style="color:var(--accent)">0:00</div>
-      <div class="run-stat-label">Pace /mi</div>
-    </div>
-    <div class="run-stat">
-      <div class="run-stat-val" id="run-time" style="color:var(--accent2)">0:00</div>
-      <div class="run-stat-label">Time</div>
-    </div>
-    <div class="run-stat">
-      <div class="run-stat-val" id="run-cal" style="color:var(--accent3)">0</div>
-      <div class="run-stat-label">Calories</div>
-    </div>
-  </div>
 
   <button class="run-btn" id="run-btn" onclick="toggleRun()">▶ Start Run</button>
 
@@ -391,18 +148,6 @@
     </ul>
   </div>
 
-  <div class="premium-section-wrap">
-    <div class="premium-section">
-      <div class="premium-label">✦ PRO Feature</div>
-      <div class="premium-title">GPS Route Tracking</div>
-      <div class="premium-desc">Live GPS map, elevation data, heart rate zones, and personalized pacing.</div>
-    </div>
-    <div class="locked-overlay" id="lock-running">
-      <div class="lock-icon">🔒</div>
-      <div class="lock-text">Add to Home Screen to unlock</div>
-      <button class="lock-cta" onclick="showHSP()">How to add →</button>
-    </div>
-  </div>
 
 </section>
 
