@@ -11,7 +11,6 @@ var WORKOUT_EXERCISES = ['bench-press', 'pullups', 'squats', 'core', 'ohp'];
 var HABITS = ['water', 'sleep', 'meditate', 'noscreens', 'read', 'veggies'];
 
 // ─── RUNTIME STATE ───────────────────────────────────────────────────────────
-var deferredInstallPrompt = null;
 var runInterval = null;
 var runSeconds = 0;
 var isRunning = false;
@@ -67,8 +66,6 @@ document.addEventListener('DOMContentLoaded', function () {
   loadNutrition();
   loadHabits();
   loadRunHistory();
-  checkPWAStatus();
-  setupInstallPrompt();
   registerServiceWorker();
 });
 
@@ -630,66 +627,8 @@ function closeModal() {
   activeStatModal = null;
 }
 
-// ─── PWA ─────────────────────────────────────────────────────────────────────
-function checkPWAStatus() {
-  var iosStandalone     = window.navigator.standalone === true;
-  var androidStandalone = window.matchMedia('(display-mode: standalone)').matches
-                       && !window.matchMedia('(display-mode: browser)').matches;
-  var wasInstalled      = load('pwa-installed', false) === true;
-
-  if (iosStandalone || androidStandalone || wasInstalled) {
-    unlockPWAFeatures();
-  } else {
-    var dismissed = load('hsp-dismissed', false);
-    if (!dismissed) setTimeout(showHSP, 3500);
-  }
-}
-
-function setupInstallPrompt() {
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    deferredInstallPrompt = e;
-    var b = document.getElementById('install-banner');
-    if (b) b.classList.add('show');
-  });
-  window.addEventListener('appinstalled', function () {
-    var b = document.getElementById('install-banner');
-    if (b) b.classList.remove('show');
-    dismissHSP();
-    unlockPWAFeatures();
-    showToast('FitPulse installed! PRO features unlocked \uD83C\uDF89');
-  });
-}
-
-function installPWA() {
-  if (deferredInstallPrompt) {
-    deferredInstallPrompt.prompt();
-    deferredInstallPrompt.userChoice.then(function (r) {
-      if (r.outcome === 'accepted') unlockPWAFeatures();
-      deferredInstallPrompt = null;
-    });
-  }
-}
-
-function unlockPWAFeatures() {
-  var badge = document.getElementById('pwa-badge');
-  if (badge) badge.classList.add('show');
-  ['lock-home','lock-workout','lock-nutrition','lock-habits','lock-running'].forEach(function (id) {
-    var el = document.getElementById(id);
-    if (el) el.remove();
-  });
-  save('pwa-installed', true);
-}
-
-function showHSP() {
-  var hsp = document.getElementById('hsp');
-  if (hsp) hsp.classList.add('show');
-}
-function dismissHSP() {
-  var hsp = document.getElementById('hsp');
-  if (hsp) hsp.classList.remove('show');
-  save('hsp-dismissed', true);
-}
+// ─── PWA ────────────────────────────────────────────────────────────────────
+// Install prompt removed — app works fully in browser.
 
 // ─── SERVICE WORKER ──────────────────────────────────────────────────────────
 function registerServiceWorker() {
