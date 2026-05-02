@@ -403,22 +403,20 @@ function buildHabitDots(key, dotId) {
   }
 }
 
-// ─── RUN TRACKER ─────────────────────────────────────────────────────────────
+// ─── RUN TRACKER (GPS) ───────────────────────────────────────────────────────
+var gpsWatchId    = null;   // navigator.geolocation watch handle
+var gpsCoords     = [];     // array of {lat, lng} points collected this run
+var gpsDistMiles  = 0;      // accumulated GPS distance in miles
+var gpsLastPos    = null;   // last known position
+
 function loadRunHistory() {
-  var runs   = load('run-history', []);
-  var list   = document.getElementById('run-history');
-  var empty  = document.getElementById('run-empty');
+  var runs  = load('run-history', []);
+  var list  = document.getElementById('run-history');
+  var empty = document.getElementById('run-empty');
   if (!list) return;
-  // Clear all but the empty placeholder
-  var items = list.querySelectorAll('.workout-item');
-  items.forEach(function (i) { i.remove(); });
-
-  if (runs.length === 0) {
-    if (empty) empty.style.display = 'block';
-    return;
-  }
+  list.querySelectorAll('.workout-item').forEach(function (i) { i.remove(); });
+  if (runs.length === 0) { if (empty) empty.style.display = 'block'; return; }
   if (empty) empty.style.display = 'none';
-
   runs.slice().reverse().slice(0, 5).forEach(function (run) {
     var li = document.createElement('li');
     li.className = 'workout-item';
@@ -426,7 +424,8 @@ function loadRunHistory() {
       '<div class="workout-icon wi-green">\uD83C\uDFC3</div>' +
       '<div class="workout-info">' +
         '<div class="workout-name">' + escHtml(run.label) + '</div>' +
-        '<div class="workout-meta">' + run.dist + ' mi \u00B7 ' + run.time + ' \u00B7 ' + run.pace + '/mi</div>' +
+        '<div class="workout-meta">' + run.dist + ' mi \u00B7 ' + run.time + ' \u00B7 ' + run.pace + '/mi' +
+          (run.gps ? ' \u00B7 \uD83D\uDCCD GPS' : '') + '</div>' +
       '</div>' +
       '<div class="run-day-label">' + run.day + '</div>';
     list.insertBefore(li, list.firstChild);
@@ -438,13 +437,79 @@ function toggleRun() {
 }
 
 function startRun() {
-  isRunning = true;
-  runSeconds = 0;
+  isRunning    = true;
+  runSeconds   = 0;
+  gpsCoords    = [];
+  gpsDistMiles = 0;
+  gpsLastPos   = null;
+
   var btn = document.getElementById('run-btn');
   var sub = document.getElementById('run-sub');
   if (btn) { btn.textContent = '\u23F8 Stop Run'; btn.classList.add('running'); }
-  if (sub) sub.textContent = 'Running...';
+
+  // Try to get GPS — ask permission and start watching position
+  if ('geolocation' in navigator) {
+    if (sub) sub.textContent = 'Acquiring GPS signal...';
+    gpsWatchId = navigator.geolocation.watchPosition(
+      onGpsPosition,
+      onGpsError,
+      {
+        enableHighAccuracy: true,
+        maximumAge: 2000,
+        timeout: 10000
+      }
+    );
+  } else {
+    if (sub) sub.textContent = 'Running... (no GPS available)';
+  }
+
   runInterval = setInterval(tickRun, 1000);
+}
+
+function onGpsPosition(pos) {
+  var lat = pos.coords.latitude;
+  var lng = pos.coords.longitude;
+  var acc = pos.coords.accuracy; // meters
+
+  // Ignore very inaccurate readings (> 50m accuracy)
+  if (acc > 50) return;
+
+  var sub = document.getElementById('run-sub');
+
+  if (gpsLastPos === null) {
+    // First good fix
+    if (sub) sub.textContent = 'GPS locked \uD83D\uDCCD Running...';
+  } else {
+    // Calculate distance from last point and add it
+    var delta = haversineDistMiles(gpsLastPos.lat, gpsLastPos.lng, lat, lng);
+    // Ignore tiny jitter (< 3 meters = ~0.00186 miles)
+    if (delta > 0.00186) {
+      gpsDistMiles += delta;
+    }
+  }
+
+  gpsLastPos = { lat: lat, lng: lng };
+  gpsCoords.push({ lat: lat, lng: lng });
+  updateRunDisplay();
+}
+
+function onGpsError(err) {
+  var sub = document.getElementById('run-sub');
+  var msg = 'Running (GPS unavailable)';
+  if (err.code === 1) msg = 'Location permission denied — using timer';
+  else if (err.code === 2) msg = 'GPS signal lost — using timer';
+  if (sub) sub.textContent = msg;
+}
+
+// Haversine formula — returns distance in miles between two lat/lng points
+function haversineDistMiles(lat1, lng1, lat2, lng2) {
+  var R = 3958.8; // Earth radius in miles
+  var dLat = (lat2 - lat1) * Math.PI / 180;
+  var dLng = (lng2 - lng1) * Math.PI / 180;
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLng/2) * Math.sin(dLng/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function stopRun() {
@@ -452,19 +517,29 @@ function stopRun() {
   clearInterval(runInterval);
   runInterval = null;
 
-  var dist = (runSeconds / 400).toFixed(2);
-  var timeStr = formatTime(runSeconds);
-  var paceStr = runSeconds > 0 && parseFloat(dist) > 0
-    ? formatTime(Math.round(runSeconds / parseFloat(dist)))
+  // Stop GPS watching
+  if (gpsWatchId !== null) {
+    navigator.geolocation.clearWatch(gpsWatchId);
+    gpsWatchId = null;
+  }
+
+  var usingGPS = gpsDistMiles > 0;
+  var distNum  = usingGPS ? gpsDistMiles : runSeconds / 400;
+  var dist     = distNum.toFixed(2);
+  var timeStr  = formatTime(runSeconds);
+  var paceStr  = runSeconds > 0 && distNum > 0
+    ? formatTime(Math.round(runSeconds / distNum))
     : '0:00';
 
   var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var h = new Date().getHours();
   var run = {
-    dist: dist,
-    time: timeStr,
-    pace: paceStr,
-    day: days[new Date().getDay()],
-    label: new Date().getHours() < 12 ? 'Morning Run' : new Date().getHours() < 17 ? 'Afternoon Run' : 'Evening Run'
+    dist:  dist,
+    time:  timeStr,
+    pace:  paceStr,
+    day:   days[new Date().getDay()],
+    label: h < 12 ? 'Morning Run' : h < 17 ? 'Afternoon Run' : 'Evening Run',
+    gps:   usingGPS
   };
 
   var runs = load('run-history', []);
@@ -475,36 +550,48 @@ function stopRun() {
   var btn = document.getElementById('run-btn');
   var sub = document.getElementById('run-sub');
   if (btn) { btn.textContent = '\u25B6 Start Run'; btn.classList.remove('running'); }
-  if (sub) sub.textContent = 'Done! ' + dist + ' mi in ' + timeStr + ' \uD83C\uDF89';
+  if (sub) sub.textContent = 'Done! ' + dist + ' mi in ' + timeStr + ' \uD83C\uDF89' + (usingGPS ? ' \uD83D\uDCCD' : '');
 
   // Reset display
-  var distEl = document.getElementById('run-dist');
-  var timeEl = document.getElementById('run-time');
-  var paceEl = document.getElementById('run-pace');
-  var calEl  = document.getElementById('run-cal');
-  if (distEl) distEl.innerHTML = '0.00 <span class="run-dist-unit">mi</span>';
-  if (timeEl) timeEl.textContent = '0:00';
-  if (paceEl) paceEl.textContent = '0:00';
-  if (calEl)  calEl.textContent  = '0';
+  ['run-dist','run-time','run-pace','run-cal'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'run-dist') el.innerHTML = '0.00 <span class="run-dist-unit">mi</span>';
+    else el.textContent = '0:00';
+  });
+  document.getElementById('run-cal').textContent = '0';
+
+  gpsDistMiles = 0;
+  gpsLastPos   = null;
+  gpsCoords    = [];
 
   showToast('Run saved! \uD83C\uDFC3');
 }
 
 function tickRun() {
   runSeconds++;
-  var dist   = runSeconds / 400;
-  var distEl = document.getElementById('run-dist');
-  var timeEl = document.getElementById('run-time');
-  var paceEl = document.getElementById('run-pace');
-  var calEl  = document.getElementById('run-cal');
-  if (distEl) distEl.innerHTML = dist.toFixed(2) + ' <span class="run-dist-unit">mi</span>';
+  updateRunDisplay();
+}
+
+function updateRunDisplay() {
+  var usingGPS = gpsDistMiles > 0;
+  var distNum  = usingGPS ? gpsDistMiles : runSeconds / 400;
+  var distEl   = document.getElementById('run-dist');
+  var timeEl   = document.getElementById('run-time');
+  var paceEl   = document.getElementById('run-pace');
+  var calEl    = document.getElementById('run-cal');
+  // Calories: ~60 cal/mile running, or ~0.12/sec fallback
+  var cal = usingGPS ? Math.round(gpsDistMiles * 60) : Math.round(runSeconds * 0.12);
+  if (distEl) distEl.innerHTML = distNum.toFixed(2) + ' <span class="run-dist-unit">mi</span>';
   if (timeEl) timeEl.textContent = formatTime(runSeconds);
-  if (calEl)  calEl.textContent  = Math.round(runSeconds * 0.12);
-  if (paceEl && dist > 0) paceEl.textContent = formatTime(Math.round(runSeconds / dist));
+  if (calEl)  calEl.textContent  = cal;
+  if (paceEl && distNum > 0 && runSeconds > 0) {
+    paceEl.textContent = formatTime(Math.round(runSeconds / distNum));
+  }
 }
 
 function formatTime(s) {
-  var m = Math.floor(s / 60);
+  var m   = Math.floor(s / 60);
   var sec = s % 60;
   return m + ':' + (sec < 10 ? '0' : '') + sec;
 }
