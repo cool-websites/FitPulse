@@ -1,0 +1,103 @@
+{
+  "name": "FitPulse — AI Fitness Coach",
+  "short_name": "FitPulse",
+  "description": "Your AI-powered fitness companion. Track workouts, nutrition, habits, and runs.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "lang": "en",
+  "categories": ["fitness", "health", "lifestyle"],
+  "icons": [
+    {
+      "src": "icons/icon-16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Home dashboard"
+    },
+    {
+      "src": "screenshots/workout.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Workout tracker"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Log Workout",
+      "short_name": "Workout",
+      "url": "/?tab=workout",
+      "description": "Jump to today's workout"
+    },
+    {
+      "name": "Start Run",
+      "short_name": "Run",
+      "url": "/?tab=running",
+      "description": "Start a new run"
+    },
+    {
+      "name": "Log Meal",
+      "short_name": "Nutrition",
+      "url": "/?tab=nutrition",
+      "description": "Log a meal"
+    }
+  ]
+}
